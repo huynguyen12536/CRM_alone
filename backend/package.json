@@ -8,6 +8,7 @@
     "dev": "nodemon src/index.js"
   },
   "dependencies": {
+    "@prisma/client": "^7.8.0",
     "casbin": "^5.50.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -22,6 +23,10 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "prisma": "^7.8.0"
+  },
+  "prisma": {
+    "schema": "internal/prisma/schema"
   }
 }

@@ -7,24 +7,24 @@ services:
       dockerfile: Dockerfile.uat
     container_name: crm2-backend-uat
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
     environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - UAT_HOST=192.168.184.128
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=crm2_user
-      - DB_PASSWORD=crm2_password
-      - DB_NAME=crm2_uat
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-3000}
+      - UAT_HOST=${UAT_HOST:-192.168.184.128}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-crm2_user}
+      - DB_PASSWORD=${DB_PASSWORD:-crm2_password}
+      - DB_NAME=${DB_NAME:-crm2_uat}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
     depends_on:
       - postgres
       - redis
     restart: unless-stopped
     extra_hosts:
-      - "host.docker.internal:192.168.184.128"
+      - "host.docker.internal:${UAT_HOST:-192.168.184.128}"
     networks:
       - crm2-network
 
@@ -32,11 +32,11 @@ services:
     image: postgres:16-alpine
     container_name: crm2-postgres-uat
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     environment:
-      - POSTGRES_USER=crm2_user
-      - POSTGRES_PASSWORD=crm2_password
-      - POSTGRES_DB=crm2_uat
+      - POSTGRES_USER=${DB_USER:-crm2_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-crm2_password}
+      - POSTGRES_DB=${DB_NAME:-crm2_uat}
     volumes:
       - postgres_data_uat:/var/lib/postgresql/data
     restart: unless-stopped
@@ -47,7 +47,7 @@ services:
     image: redis:7-alpine
     container_name: crm2-redis-uat
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data_uat:/data
     restart: unless-stopped

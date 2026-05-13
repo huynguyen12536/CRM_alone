@@ -1,0 +1,4 @@
+// Prisma Datasource Configuration
+datasource db {
+  provider = "postgresql"
+}
