@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: crm2-backend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=crm2_user
+      - DB_PASSWORD=crm2_password
+      - DB_NAME=crm2_dev
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - crm2-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: crm2-postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=crm2_user
+      - POSTGRES_PASSWORD=crm2_password
+      - POSTGRES_DB=crm2_dev
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - crm2-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: crm2-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+    restart: unless-stopped
+    networks:
+      - crm2-network
+
+networks:
+  crm2-network:
+    driver: bridge
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:
