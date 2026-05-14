@@ -21,7 +21,7 @@ ENV NODE_ENV=production
 
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/src ./src
+COPY --from=build /app/cmd ./cmd
 COPY --from=build /app/internal ./internal
 COPY --from=build /app/pkg ./pkg
 COPY --from=build /app/configs ./configs
@@ -29,4 +29,4 @@ COPY --from=build /app/prisma.config.ts ./prisma.config.ts
 
 EXPOSE 3000
 
-CMD ["node", "src/index.js"]
+CMD ["node", "cmd/server/index.js"]

@@ -2,10 +2,10 @@
   "name": "crm2-backend",
   "version": "1.0.0",
   "description": "CRM2 Backend API",
-  "main": "src/index.js",
+  "main": "cmd/server/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node cmd/server/index.js",
+    "dev": "nodemon cmd/server/index.js",
     "migrate:diff": "atlas migrate diff --env local",
     "migrate:apply": "atlas migrate apply --env local",
     "migrate:status": "atlas migrate status --env local",

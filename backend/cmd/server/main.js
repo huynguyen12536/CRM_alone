@@ -2,22 +2,15 @@
 
 const path = require('path');
 
-// Load biến môi trường từ file .env
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const logger = require('../../pkg/logger/tlog');
 
-// Khởi tạo logger
 logger.init();
 
-// Load cấu hình ứng dụng (sẽ được implement đầy đủ sau)
 const config = require('../../pkg/config');
 
 const { setupDependencies } = require('./setup');
-
-// ============================================================
-// Hàm khởi động chính (async IIFE)
-// ============================================================
 
 (async function main() {
   let server;
@@ -25,15 +18,10 @@ const { setupDependencies } = require('./setup');
   let redis;
 
   try {
-    // Khởi tạo dependencies thông qua setup
     const deps = await setupDependencies(config);
     const app = deps.app;
     sequelize = deps.sequelize;
     redis = deps.redis;
-
-    // ============================================================
-    // Health check endpoint (base-level, trước khi đăng ký routes)
-    // ============================================================
 
     app.get('/health', (req, res) => {
       res.status(200).json({
@@ -43,20 +31,12 @@ const { setupDependencies } = require('./setup');
       });
     });
 
-    // ============================================================
-    // Khởi động server
-    // ============================================================
-
     const PORT = process.env.PORT || 3000;
 
     server = app.listen(PORT, () => {
       logger.info(`Server đang chạy tại port ${PORT}`);
       logger.info(`Môi trường: ${process.env.NODE_ENV || 'development'}`);
     });
-
-    // ============================================================
-    // Graceful shutdown - Xử lý tắt server an toàn
-    // ============================================================
 
     function gracefulShutdown(signal) {
       logger.info(`Nhận tín hiệu ${signal}. Đang tắt server...`);
@@ -70,13 +50,11 @@ const { setupDependencies } = require('./setup');
         logger.info('HTTP server đã đóng.');
 
         try {
-          // Đóng kết nối database
           if (sequelize) {
             await sequelize.close();
             logger.info('Đã đóng kết nối database.');
           }
 
-          // Đóng kết nối Redis
           if (redis) {
             await redis.disconnect();
             logger.info('Đã đóng kết nối Redis.');
@@ -89,7 +67,6 @@ const { setupDependencies } = require('./setup');
         process.exit(0);
       });
 
-      // Timeout buộc thoát nếu không đóng được trong thời gian cho phép
       setTimeout(() => {
         logger.error('Không thể đóng server trong thời gian cho phép. Buộc thoát.');
         process.exit(1);
@@ -103,10 +80,6 @@ const { setupDependencies } = require('./setup');
     process.exit(1);
   }
 })();
-
-// ============================================================
-// Xử lý lỗi không được bắt
-// ============================================================
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection tại:', promise, 'lý do:', reason);
