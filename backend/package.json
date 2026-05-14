@@ -5,7 +5,13 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "migrate:diff": "atlas migrate diff --env local",
+    "migrate:apply": "atlas migrate apply --env local",
+    "migrate:status": "atlas migrate status --env local",
+    "migrate:down": "atlas migrate down --env local",
+    "migrate:lint": "atlas migrate lint --env local",
+    "prisma:generate": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^7.8.0",

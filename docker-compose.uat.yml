@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile.uat
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: crm2-backend-uat
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
@@ -17,11 +15,16 @@ services:
       - DB_USER=${DB_USER:-crm2_user}
       - DB_PASSWORD=${DB_PASSWORD:-crm2_password}
       - DB_NAME=${DB_NAME:-crm2_uat}
+      - DATABASE_URL=postgresql://${DB_USER:-crm2_user}:${DB_PASSWORD:-crm2_password}@postgres:5432/${DB_NAME:-crm2_uat}?sslmode=${DB_SSLMODE:-disable}
       - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      migration:
+        condition: service_completed_successfully
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:${UAT_HOST:-192.168.184.128}"
@@ -37,9 +40,33 @@ services:
       - POSTGRES_USER=${DB_USER:-crm2_user}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-crm2_password}
       - POSTGRES_DB=${DB_NAME:-crm2_uat}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-crm2_user} -d ${DB_NAME:-crm2_uat}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - postgres_data_uat:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - crm2-network
+
+  migration:
+    image: arigaio/atlas:latest
+    container_name: crm2-atlas-migration-uat
+    command:
+      - migrate
+      - apply
+      - --url
+      - postgresql://${DB_USER:-crm2_user}:${DB_PASSWORD:-crm2_password}@postgres:5432/${DB_NAME:-crm2_uat}?sslmode=${DB_SSLMODE:-disable}
+      - --dir
+      - file:///migrations
+    volumes:
+      - ./backend/internal/prisma/migrations:/migrations:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
     networks:
       - crm2-network
 
